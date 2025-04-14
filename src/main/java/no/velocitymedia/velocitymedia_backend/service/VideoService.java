@@ -29,5 +29,9 @@ public class VideoService {
         videoRepository.save(newVideo);
     }
 
+    public void addVideo(VideoEntity videoEntity){
+        videoRepository.save(videoEntity);
+    }
+
 
 }
