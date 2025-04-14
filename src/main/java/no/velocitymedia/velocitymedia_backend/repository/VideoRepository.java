@@ -10,7 +10,11 @@ import no.velocitymedia.velocitymedia_backend.model.VideoEntity;
 public interface VideoRepository extends JpaRepository<VideoEntity, Long>{
 
 
-    List<VideoEntity> getAllVideos();
+    @Override
+    default List<VideoEntity> findAll() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findAll'");
+    }
 
 
 }
