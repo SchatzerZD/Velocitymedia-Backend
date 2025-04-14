@@ -28,6 +28,10 @@ public class UserService {
         return userRepository.findByUsernameIgnoreCase(username).get();
     }
 
+    public UserEntity getUserById(Long id){
+        return userRepository.findById(id).get();
+    }
+
     public void addUser(UserEntity user){
 
         if(userRepository.findByUsernameIgnoreCase(user.getUsername()).isPresent()){

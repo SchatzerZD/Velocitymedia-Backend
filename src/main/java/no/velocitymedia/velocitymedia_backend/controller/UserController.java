@@ -29,11 +29,12 @@ public class UserController {
 
     @GetMapping("/")
     public ResponseEntity<?> getUsers(@AuthenticationPrincipal UserEntity user) {
-        if(user.getUsername().equals("admin")){
-            return ResponseEntity.ok(userService.getAllUsers());
-        }else{
+        //TODO:Better admin authentication
+        if(!user.getUsername().equals("admin")){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized access");
         }
+
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @PostMapping("/")
@@ -52,11 +53,11 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody UserEntity user) {
-        if(userService.login(user)){
-            return ResponseEntity.ok(jwtService.generateJWT(user));
-        }else{
+        if(!userService.login(user)){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Username or password is incorrect");
         }
+        
+        return ResponseEntity.ok(jwtService.generateJWT(user));
     }
     
     

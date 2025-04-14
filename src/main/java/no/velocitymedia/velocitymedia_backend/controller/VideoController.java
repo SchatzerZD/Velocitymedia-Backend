@@ -13,6 +13,7 @@ import no.velocitymedia.velocitymedia_backend.model.CommentEntity;
 import no.velocitymedia.velocitymedia_backend.model.UserEntity;
 import no.velocitymedia.velocitymedia_backend.model.VideoEntity;
 import no.velocitymedia.velocitymedia_backend.service.CommentService;
+import no.velocitymedia.velocitymedia_backend.service.UserService;
 import no.velocitymedia.velocitymedia_backend.service.VideoService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,16 +32,26 @@ public class VideoController {
     @Autowired
     private CommentService commentService;
 
+    @Autowired
+    private UserService userService;
+
 
     @GetMapping("/")
     public ResponseEntity<List<VideoEntity>> getVideos() {
         return ResponseEntity.ok(videoService.findAll());
     }
 
-    @PostMapping("/")
-    public ResponseEntity<?> uploadVideo(@AuthenticationPrincipal UserEntity user, @RequestBody VideoEntity videoEntity) {
+    @PostMapping("/{id}")
+    public ResponseEntity<?> uploadVideo(@AuthenticationPrincipal UserEntity user, @PathVariable("id") String userId, @RequestBody VideoEntity videoEntity) {
+
+        //TODO:Better admin authentication
+        if(user == null || !user.getUsername().equals("admin")){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
         try {
-            videoService.addVideo(user, videoEntity.getVideoName(), videoEntity.getFilePath());
+            UserEntity targetUser = userService.getUserById(Long.parseLong(userId));
+            videoService.addVideo(targetUser, videoEntity.getVideoName(), videoEntity.getFilePath());
             return ResponseEntity.ok().body("Video uploaded");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -48,19 +59,23 @@ public class VideoController {
     }
 
     @PostMapping("/{id}/comment")
-    public ResponseEntity<?> comment(@AuthenticationPrincipal UserEntity user, @PathVariable String id, @RequestBody CommentEntity comment) {
+    public ResponseEntity<?> comment(@AuthenticationPrincipal UserEntity user, @PathVariable("id") String videoId, @RequestBody CommentEntity comment) {
         if(user == null){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
 
-        VideoEntity videoEntity = videoService.getVideoById(Long.parseLong(id));
-        if(videoService.verifyVideoUser(user, videoEntity) && comment.getComment() != null){
-            comment.setVideo(videoEntity);
-            commentService.comment(comment);
-            return ResponseEntity.ok("Comment added");
-        }else{
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Somewent wrong");
+        if(comment.getComment() != null){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Comment cant be null");
         }
+
+        VideoEntity videoEntity = videoService.getVideoById(Long.parseLong(videoId));
+        if(!videoService.verifyVideoUser(user, videoEntity)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
+        comment.setVideo(videoEntity);
+        commentService.comment(comment);
+        return ResponseEntity.ok("Comment added");
         
     }
     
