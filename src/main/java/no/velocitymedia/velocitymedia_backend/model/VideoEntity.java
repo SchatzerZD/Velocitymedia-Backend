@@ -1,7 +1,6 @@
 package no.velocitymedia.velocitymedia_backend.model;
 
-import org.springframework.web.multipart.MultipartFile;
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -9,23 +8,23 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "video")
-public class VideoEntity {
+@Table(name = "video",schema = "dbo")
+public class VideoEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String videoName;
-    private MultipartFile file;
+    private String filePath;
 
     public VideoEntity() {
     }
 
-    public VideoEntity(String videoName, MultipartFile file) {
+    public VideoEntity(String videoName, String filePath) {
         super();
         this.videoName = videoName;
-        this.file = file;
+        this.filePath = filePath;
     }
 
     public Long getId() {
@@ -36,16 +35,16 @@ public class VideoEntity {
         return videoName;
     }
 
-    public MultipartFile getFile() {
-        return file;
+    public String getFilePath() {
+        return filePath;
     }
 
     public void setVideoName(String videoName) {
         this.videoName = videoName;
     }
 
-    public void setFile(MultipartFile file) {
-        this.file = file;
+    public void setFilePath(String file) {
+        this.filePath = file;
     }
 
 
