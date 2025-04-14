@@ -23,8 +23,8 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http.csrf(csrf -> csrf.disable());
         http.cors(cors -> cors.disable());
-        http.addFilterBefore(jwtRequestFilter, AuthorizationFilter.class);
-        http.authorizeHttpRequests(authorized -> authorized.anyRequest().authenticated());
+        //http.addFilterBefore(jwtRequestFilter, AuthorizationFilter.class);
+        http.authorizeHttpRequests(authorized -> authorized.anyRequest().permitAll());
 
         return http.build();
     }
