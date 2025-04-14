@@ -9,6 +9,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
 import jakarta.annotation.PostConstruct;
+import no.velocitymedia.velocitymedia_backend.model.UserEntity;
 
 @Service
 public class JWTService {
@@ -29,10 +30,15 @@ public class JWTService {
         algorithm = Algorithm.HMAC256(algorithmKey);
     }
 
-    public String generateJWT(){
+    public String generateJWT(UserEntity user){
         return JWT.create()
+            .withClaim("USERNAME", user.getUsername())
             .withExpiresAt(new Date(System.currentTimeMillis() + (1000*expiryInSeconds)))
             .withIssuer(issuer)
             .sign(algorithm);
+    }
+
+    public String getUsername(String token){
+        return JWT.decode(token).getClaim("USERNAME").asString();
     }
 }

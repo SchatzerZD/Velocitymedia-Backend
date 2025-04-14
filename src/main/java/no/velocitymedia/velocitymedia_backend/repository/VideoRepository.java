@@ -10,7 +10,5 @@ import no.velocitymedia.velocitymedia_backend.model.VideoEntity;
 
 public interface VideoRepository extends JpaRepository<VideoEntity, Long>{
 
-    List<VideoEntity> findAll();
-    
 
 }

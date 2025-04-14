@@ -8,7 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "video",schema = "dbo")
+@Table(name = "videos",schema = "dbo")
 public class VideoEntity{
 
     @Id
