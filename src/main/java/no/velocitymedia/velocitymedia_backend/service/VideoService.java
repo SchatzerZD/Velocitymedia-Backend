@@ -12,9 +12,9 @@ public class VideoService {
     @Autowired
     private VideoRepository videoRepository;
 
-    List<VideoEntity> findAll() {
+    public List<VideoEntity> findAll() {
         return videoRepository.findAll();
     }
 
-    
+
 }
