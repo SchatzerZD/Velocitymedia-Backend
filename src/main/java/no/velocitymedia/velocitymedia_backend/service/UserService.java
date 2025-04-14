@@ -13,6 +13,7 @@ import no.velocitymedia.velocitymedia_backend.repository.UserRepository;
 @Transactional
 public class UserService {
 
+    @Autowired
     private EncryptionService encryptionService;
 
     @Autowired
