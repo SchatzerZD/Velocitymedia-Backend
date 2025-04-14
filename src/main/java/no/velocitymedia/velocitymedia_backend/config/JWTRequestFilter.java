@@ -17,7 +17,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import no.velocitymedia.velocitymedia_backend.model.UserEntity;
-import no.velocitymedia.velocitymedia_backend.repository.UserRepository;
 import no.velocitymedia.velocitymedia_backend.service.JWTService;
 import no.velocitymedia.velocitymedia_backend.service.UserService;
 
