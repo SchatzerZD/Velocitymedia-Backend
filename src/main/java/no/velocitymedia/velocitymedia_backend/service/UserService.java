@@ -1,6 +1,7 @@
 package no.velocitymedia.velocitymedia_backend.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,15 @@ public class UserService {
 
         user.setPassword(encryptionService.encryptPassword(user.getPassword()));
         userRepository.save(user);
+    }
+
+    public boolean login(UserEntity user){
+        Optional<UserEntity> optionalUser = userRepository.findByUsernameIgnoreCase(user.getUsername());
+        if(optionalUser.isPresent() && encryptionService.verifyPassword(user.getPassword(), optionalUser.get().getPassword())){
+            return true;
+        }else{
+            return false;
+        }
     }
 
 }
