@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import no.velocitymedia.velocitymedia_backend.model.UserEntity;
+import no.velocitymedia.velocitymedia_backend.service.JWTService;
 import no.velocitymedia.velocitymedia_backend.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +24,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private JWTService jwtService;
 
     @GetMapping("/")
     public ResponseEntity<List<UserEntity>> getUsers() {
@@ -41,6 +45,17 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e);
         }
     }
+
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody UserEntity user) {
+        if(userService.login(user)){
+            return ResponseEntity.ok(jwtService.generateJWT(user));
+        }else{
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username or password is incorrect");
+        }
+    }
+    
     
     
 
