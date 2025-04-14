@@ -28,6 +28,11 @@ public class UserService {
     }
 
     public void addUser(UserEntity user){
+
+        if(userRepository.findByUsernameIgnoreCase(user.getUsername()).isPresent()){
+            throw new IllegalArgumentException();
+        }
+
         user.setPassword(encryptionService.encryptPassword(user.getPassword()));
         userRepository.save(user);
     }

@@ -34,7 +34,10 @@ public class UserController {
         try {
             userService.addUser(user);
             return ResponseEntity.ok().body("User added");
-        } catch (Exception e) {
+        } catch(IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Username already exists");
+        }
+        catch (Exception e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e);
         }
     }
