@@ -14,7 +14,6 @@ import no.velocitymedia.velocitymedia_backend.model.VideoEntity;
 import no.velocitymedia.velocitymedia_backend.service.VideoService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 
 
