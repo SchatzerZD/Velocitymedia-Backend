@@ -14,6 +14,7 @@ import no.velocitymedia.velocitymedia_backend.model.VideoEntity;
 import no.velocitymedia.velocitymedia_backend.service.VideoService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 
 
@@ -31,14 +32,14 @@ public class VideoController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> uploadVideo(@RequestParam String videoName, @RequestParam String videoFilePath) {
+    public ResponseEntity<?> uploadVideo(@RequestBody VideoEntity videoEntity) {
         try {
-            videoService.addVideo(videoName,videoFilePath);
-            return ResponseEntity.ok().body("Video added");
+            videoService.addVideo(videoEntity);
+            return ResponseEntity.ok().body("Video uploaded");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
-
+        
     }
     
     
