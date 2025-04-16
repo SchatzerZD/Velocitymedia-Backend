@@ -43,7 +43,7 @@ public class VideoController {
     @Autowired
     private UserService userService;
 
-    private final String UPLOAD_VIDEO_DIR = "../../../../../../../media/videos/";
+    private final String UPLOAD_VIDEO_DIR = "C:\\Users\\danir\\Documents\\AS film\\backend\\velocitymedia-backend\\media\\videos";
 
 
     @GetMapping("/")
@@ -62,7 +62,7 @@ public class VideoController {
         try {
             UserEntity targetUser = userService.getUserById(Long.parseLong(userId));
 
-            Path uploadPath = Paths.get(UPLOAD_VIDEO_DIR);
+            Path uploadPath = Paths.get(UPLOAD_VIDEO_DIR).toAbsolutePath();
             if(!Files.exists(uploadPath)){
                 Files.createDirectories(uploadPath);
             }
