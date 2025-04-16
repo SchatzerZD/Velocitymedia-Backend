@@ -1,5 +1,9 @@
 package no.velocitymedia.velocitymedia_backend.controller;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import no.velocitymedia.velocitymedia_backend.model.CommentEntity;
 import no.velocitymedia.velocitymedia_backend.model.UserEntity;
@@ -15,6 +21,8 @@ import no.velocitymedia.velocitymedia_backend.model.VideoEntity;
 import no.velocitymedia.velocitymedia_backend.service.CommentService;
 import no.velocitymedia.velocitymedia_backend.service.UserService;
 import no.velocitymedia.velocitymedia_backend.service.VideoService;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,6 +43,8 @@ public class VideoController {
     @Autowired
     private UserService userService;
 
+    private final String UPLOAD_VIDEO_DIR = "../../../../../../../media/videos/";
+
 
     @GetMapping("/")
     public ResponseEntity<List<VideoEntity>> getVideos() {
@@ -42,7 +52,7 @@ public class VideoController {
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<?> uploadVideo(@AuthenticationPrincipal UserEntity user, @PathVariable("id") String userId, @RequestBody VideoEntity videoEntity) {
+    public ResponseEntity<?> uploadVideo(@AuthenticationPrincipal UserEntity user, @PathVariable("id") String userId, @RequestParam("file") MultipartFile file) {
 
         //TODO:Better admin authentication
         if(user == null || !user.getUsername().equals("admin")){
@@ -51,6 +61,22 @@ public class VideoController {
 
         try {
             UserEntity targetUser = userService.getUserById(Long.parseLong(userId));
+
+            Path uploadPath = Paths.get(UPLOAD_VIDEO_DIR);
+            if(!Files.exists(uploadPath)){
+                Files.createDirectories(uploadPath);
+            }
+
+            String fileName = file.getOriginalFilename();
+            Path filePath = uploadPath.resolve(fileName);
+
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+
+            VideoEntity videoEntity = new VideoEntity();
+            videoEntity.setVideoName(fileName);
+            videoEntity.setFilePath(filePath.toString());
+
             videoService.addVideo(targetUser, videoEntity.getVideoName(), videoEntity.getFilePath());
             return ResponseEntity.ok().body("Video uploaded");
         } catch (Exception e) {
