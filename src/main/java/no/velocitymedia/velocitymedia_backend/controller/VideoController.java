@@ -43,11 +43,20 @@ public class VideoController {
     @Autowired
     private UserService userService;
 
-    private final String UPLOAD_VIDEO_DIR = "C:\\Users\\danir\\Documents\\AS film\\backend\\velocitymedia-backend\\media\\videos";
+    private final String UPLOAD_VIDEO_DIR = "C:\\Users\\danir\\Documents\\AS film\\frontend\\velocitymedia-frontend\\media\\videos";
 
 
     @GetMapping("/")
-    public ResponseEntity<List<VideoEntity>> getVideos() {
+    public ResponseEntity<?> getVideos(@AuthenticationPrincipal UserEntity user) {
+        //TODO:Better admin authentication
+        if(user == null){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
+        if(!user.getUsername().equals("admin")){
+            return ResponseEntity.ok(videoService.getAllByUser(user));
+        }
+
         return ResponseEntity.ok(videoService.findAll());
     }
 

@@ -21,6 +21,10 @@ public class VideoService {
         return videoRepository.findAll();
     }
 
+    public List<VideoEntity> getAllByUser(UserEntity userEntity){
+        return videoRepository.findByUser(userEntity);
+    }
+
 
     public void addVideo(UserEntity user,String videoName, String filePath){
 
