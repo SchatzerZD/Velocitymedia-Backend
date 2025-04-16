@@ -7,6 +7,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -43,7 +44,8 @@ public class VideoController {
     @Autowired
     private UserService userService;
 
-    private final String UPLOAD_VIDEO_DIR = "C:\\Users\\danir\\Documents\\AS film\\frontend\\velocitymedia-frontend\\media\\videos";
+    @Value("${upload.video.dir}")
+    private String UPLOAD_VIDEO_DIR;
 
 
     @GetMapping("/")
@@ -89,7 +91,7 @@ public class VideoController {
             videoService.addVideo(targetUser, videoEntity.getVideoName(), videoEntity.getFilePath());
             return ResponseEntity.ok().body("Video uploaded");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e);
         }
     }
 
