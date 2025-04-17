@@ -1,5 +1,6 @@
 package no.velocitymedia.velocitymedia_backend.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -24,6 +25,7 @@ public class CommentEntity {
 
     private float timestampInSeconds;
 
+    @Column(length = 2000)
     private String comment;
 
     public CommentEntity() {
