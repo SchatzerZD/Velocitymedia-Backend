@@ -62,7 +62,6 @@ public class ImageController {
 
 
             ImageEntity imageEntity = new ImageEntity();
-            imageEntity.setImagePath(fileName);
             imageEntity.setImagePath(filePath.toString());
             imageEntity.setUserEntity(targetUser);
 
