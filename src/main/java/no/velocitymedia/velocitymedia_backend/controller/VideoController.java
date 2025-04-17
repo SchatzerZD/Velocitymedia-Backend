@@ -22,6 +22,7 @@ import no.velocitymedia.velocitymedia_backend.model.VideoEntity;
 import no.velocitymedia.velocitymedia_backend.service.CommentService;
 import no.velocitymedia.velocitymedia_backend.service.UserService;
 import no.velocitymedia.velocitymedia_backend.service.VideoService;
+import no.velocitymedia.velocitymedia_backend.service.generators.ThumbnailGenerator;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -87,6 +88,11 @@ public class VideoController {
             VideoEntity videoEntity = new VideoEntity();
             videoEntity.setVideoName(fileName);
             videoEntity.setFilePath(filePath.toString());
+
+            String thumbnailFileName = fileName.replaceAll("\\.mp4$", "") + ".jpg";
+            Path thumbnailPath = uploadPath.resolve(thumbnailFileName);
+            
+            ThumbnailGenerator.generateThumbnail(filePath.toString(), thumbnailPath.toString());
 
             videoService.addVideo(targetUser, videoEntity.getVideoName(), videoEntity.getFilePath());
             return ResponseEntity.ok().body("Video uploaded");
