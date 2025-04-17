@@ -95,13 +95,29 @@ public class VideoController {
         }
     }
 
-    @PostMapping("/{id}/comment")
-    public ResponseEntity<?> comment(@AuthenticationPrincipal UserEntity user, @PathVariable("id") String videoId, @RequestBody CommentEntity comment) {
+    @GetMapping("/{id}/comment")
+    public ResponseEntity<?> getComments(@AuthenticationPrincipal UserEntity user, @PathVariable("id") String videoId) {
         if(user == null){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized, user is null");
+        }
+
+        VideoEntity videoEntity = videoService.getVideoById(Long.parseLong(videoId));
+        if(!videoService.verifyVideoUser(user, videoEntity)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
 
-        if(comment.getComment() != null){
+        return ResponseEntity.ok(commentService.getCommentsByVideo(videoEntity));
+    }
+    
+
+    @PostMapping("/{id}/comment")
+    public ResponseEntity<?> comment(@AuthenticationPrincipal UserEntity user, @PathVariable("id") String videoId, @RequestBody CommentEntity comment) {
+        if(user == null){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized, user is null");
+        }
+
+
+        if(comment.getComment() == null){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Comment cant be null");
         }
 
@@ -112,7 +128,7 @@ public class VideoController {
 
         comment.setVideo(videoEntity);
         commentService.comment(comment);
-        return ResponseEntity.ok("Comment added");
+        return ResponseEntity.ok("Comment added:" + comment);
         
     }
     

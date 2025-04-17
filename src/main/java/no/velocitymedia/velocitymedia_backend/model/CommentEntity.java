@@ -22,14 +22,14 @@ public class CommentEntity {
     @JoinColumn(name = "video_id")
     private VideoEntity video;
 
-    private int timestampInSeconds;
+    private float timestampInSeconds;
 
     private String comment;
 
     public CommentEntity() {
     }
 
-    public CommentEntity(VideoEntity video, String comment, int timestampInSeconds) {
+    public CommentEntity(VideoEntity video, String comment, float timestampInSeconds) {
         super();
         this.video = video;
         this.comment = comment;
@@ -56,11 +56,11 @@ public class CommentEntity {
         this.comment = comment;
     }
 
-    public int getTimestampInSeconds() {
+    public float getTimestampInSeconds() {
         return timestampInSeconds;
     }
 
-    public void setTimestampInSeconds(int timestampInSeconds) {
+    public void setTimestampInSeconds(float timestampInSeconds) {
         this.timestampInSeconds = timestampInSeconds;
     }
 
