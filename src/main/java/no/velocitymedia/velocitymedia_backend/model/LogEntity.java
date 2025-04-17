@@ -1,5 +1,7 @@
 package no.velocitymedia.velocitymedia_backend.model;
 
+import java.sql.Date;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -25,7 +27,10 @@ public class LogEntity {
     @Column(length = 4000)
     private String log;
 
+    private Date logCreatedDate;
+
     public LogEntity() {
+        this.logCreatedDate = new Date(System.currentTimeMillis());
     }
 
     public LogEntity(UserEntity userEntity, String log){
@@ -53,6 +58,16 @@ public class LogEntity {
     public void setLog(String log) {
         this.log = log;
     }
+
+    public Date getLogCreatedDate() {
+        return logCreatedDate;
+    }
+
+    public void setLogCreatedDate(Date logCreatedDate) {
+        this.logCreatedDate = logCreatedDate;
+    }
+
+    
 
     
     
