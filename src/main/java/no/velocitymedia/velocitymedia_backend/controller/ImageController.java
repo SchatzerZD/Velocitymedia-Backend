@@ -64,7 +64,7 @@ public class ImageController {
             ImageEntity imageEntity = new ImageEntity();
             imageEntity.setImagePath(fileName);
             imageEntity.setImagePath(filePath.toString());
-            imageEntity.setUserEntity(user);
+            imageEntity.setUserEntity(targetUser);
 
             imageService.uploadImage(imageEntity);
             return ResponseEntity.ok(imageEntity.getImagePath());
