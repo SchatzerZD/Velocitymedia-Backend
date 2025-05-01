@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 
@@ -39,6 +41,11 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<?> getUserByAuthentication(@AuthenticationPrincipal UserEntity user) {
+        return ResponseEntity.ok(user);
+    }
+
     @PostMapping("/")
     public ResponseEntity<?> registerUser(@RequestBody UserEntity user) {
         try {
@@ -61,6 +68,8 @@ public class UserController {
         
         return ResponseEntity.ok(jwtService.generateJWT(user));
     }
+
+
     
     
     
