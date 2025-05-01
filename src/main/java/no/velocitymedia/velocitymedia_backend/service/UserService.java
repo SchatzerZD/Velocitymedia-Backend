@@ -42,6 +42,16 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public void updateUserFikenInfo(UserEntity user, String accountId, String invoiceId){
+        if(!userRepository.findByUsernameIgnoreCase(user.getUsername()).isPresent()){
+            throw new IllegalArgumentException();
+        }
+
+        user.setAccountId(accountId);
+        user.setInvoiceId(invoiceId);
+        userRepository.save(user);
+    }
+
     public boolean login(UserEntity user){
         Optional<UserEntity> optionalUser = userRepository.findByUsernameIgnoreCase(user.getUsername());
         if(optionalUser.isPresent() && encryptionService.verifyPassword(user.getPassword(), optionalUser.get().getPassword())){
@@ -50,5 +60,7 @@ public class UserService {
             return false;
         }
     }
+
+
 
 }
