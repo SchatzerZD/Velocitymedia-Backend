@@ -1,11 +1,19 @@
 package no.velocitymedia.velocitymedia_backend.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import no.velocitymedia.velocitymedia_backend.model.UserEntity;
+import no.velocitymedia.velocitymedia_backend.service.UserService;
+
+import java.net.URI;
 import java.util.*;
+
+
 
 @RestController
 @RequestMapping("/fiken")
@@ -19,6 +27,9 @@ public class FikenController {
     private String clientSecret;
 
     private final RestTemplate restTemplate = new RestTemplate();
+
+    @Autowired
+    private UserService userService;
 
     @PostMapping("/token")
     public ResponseEntity<?> getAccessToken(@RequestBody Map<String, String> request) {
@@ -71,12 +82,35 @@ public class FikenController {
         }
     }
 
+@GetMapping("/get-contract/{invoiceId}")
+    public ResponseEntity<?> getContract(
+            @PathVariable String invoiceId,
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        String companySlug = "fiken-demo-gammel-burger-as";
+        String url = String.format("https://api.fiken.no/api/v2/companies/%s/invoices/%s", companySlug, invoiceId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", authHeader);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+        RestTemplate restTemplate = new RestTemplate();
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            return ResponseEntity.ok().body(response.getBody());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Something went wrong retrieving the invoice: " + e.getMessage());
+        }
+    }
+    
+
     @PostMapping("/create-contract")
-    public ResponseEntity<?> createContract(@RequestHeader("Authorization") String bearerToken,
-            @RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> createContract(@AuthenticationPrincipal UserEntity user, @RequestBody Map<String, Object> request) {
                 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", bearerToken);
+        headers.set("Authorization", "Bearer " + (String) request.get("accessToken"));
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         try {
@@ -107,15 +141,9 @@ public class FikenController {
             invoicePayload.put("invoiceText", "Kontrakt: " + request.get("contractText"));
             invoicePayload.put("bankAccountCode", "1920:10001");
             invoicePayload.put("cash", false);
-        
-
-            Map<String, String> customerRef = new HashMap<>();
-            customerRef.put("href", contactHref);
-            invoicePayload.put("customer", customerRef);
-
+    
             String contactId = contactHref.substring(contactHref.lastIndexOf('/') + 1);
             invoicePayload.put("customerId", contactId);
-
 
             List<Map<String, Object>> lines = new ArrayList<>();
             Map<String, Object> lineItem = new HashMap<>();
@@ -134,15 +162,47 @@ public class FikenController {
                     "https://api.fiken.no/api/v2/companies/" + companySlug + "/invoices",
                     HttpMethod.POST,
                     invoiceEntity,
+                    Map.class);  
+
+            String location = invoiceResponse.getHeaders().getLocation().toString();
+            String invoiceId = location.substring(location.lastIndexOf('/') + 1);
+            String publicInvoiceUrl = "https://fiken.no/foretak/" + companySlug + "/webfaktura/" + invoiceId;
+
+            ResponseEntity<Map> invoiceBodyResponse = restTemplate.exchange(
+                    "https://api.fiken.no/api/v2/companies/" + companySlug + "/invoices/" + invoiceId,
+                    HttpMethod.GET,
+                    invoiceEntity,
                     Map.class);
 
-            return ResponseEntity.ok(invoiceResponse.getBody());
+
+            userService.updateUserFikenInfo(user, contactId, invoiceId);
+                    
+            return ResponseEntity.ok(Map.of("invoiceUrl", publicInvoiceUrl.toString(), "content", invoiceBodyResponse.getBody()));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Feil ved kontraktopprettelse: " + e.getMessage());
         }
     }
+
+    @PostMapping("/user/info")
+    public ResponseEntity<?> updateUserFikenInfo(@AuthenticationPrincipal UserEntity user, @RequestBody Map<String, String> request) {
+        
+        try {
+            String accountId = request.get("accountId");
+            String invoiceId = request.get("invoiceId");     
+            userService.updateUserFikenInfo(user, accountId, invoiceId);
+
+            return ResponseEntity.ok().build();
+
+        } catch (Exception e) {
+           return ResponseEntity.status(HttpStatus.CONFLICT).body("Something went wrong updating user: " + e);
+        }
+
+
+        
+    }
+    
 
     private String buildUrlEncodedParams(Map<String, String> params) {
         StringBuilder encoded = new StringBuilder();
