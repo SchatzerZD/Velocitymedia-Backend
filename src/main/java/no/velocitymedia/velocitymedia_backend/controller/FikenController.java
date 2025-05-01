@@ -40,14 +40,14 @@ public class FikenController {
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(
-                "https://fiken.no/oauth/token",
-                HttpMethod.POST,
-                entity,
-                String.class
-            );
+                    "https://fiken.no/oauth/token",
+                    HttpMethod.POST,
+                    entity,
+                    String.class);
             return ResponseEntity.ok(response.getBody());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong with token access: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Something went wrong with token access: " + e.getMessage());
         }
     }
 
@@ -60,14 +60,87 @@ public class FikenController {
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(
-                "https://api.fiken.no/api/v2/companies",
-                HttpMethod.GET,
-                entity,
-                String.class
-            );
+                    "https://api.fiken.no/api/v2/companies",
+                    HttpMethod.GET,
+                    entity,
+                    String.class);
             return ResponseEntity.ok(response.getBody());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong with companies: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Something went wrong with companies: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/create-contract")
+    public ResponseEntity<?> createContract(@RequestHeader("Authorization") String bearerToken,
+            @RequestBody Map<String, Object> request) {
+                
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", bearerToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        try {
+
+            String companySlug = "fiken-demo-gammel-burger-as";
+
+            Map<String, Object> contactPayload = new HashMap<>();
+            contactPayload.put("name", request.get("customerName"));
+            contactPayload.put("email", request.get("customerEmail"));
+            contactPayload.put("customer", true);
+
+            Map<String, String> addressFromRequest = (Map<String, String>) request.get("address");
+            contactPayload.put("address", addressFromRequest);
+            
+
+            HttpEntity<Map<String, Object>> contactEntity = new HttpEntity<>(contactPayload, headers);
+            ResponseEntity<Map> contactResponse = restTemplate.exchange(
+                    "https://api.fiken.no/api/v2/companies/" + companySlug + "/contacts",
+                    HttpMethod.POST,
+                    contactEntity,
+                    Map.class);
+
+            String contactHref = contactResponse.getHeaders().getLocation().toString();
+
+            Map<String, Object> invoicePayload = new HashMap<>();
+            invoicePayload.put("issueDate", "2025-04-30");
+            invoicePayload.put("dueDate", "2025-05-15");
+            invoicePayload.put("invoiceText", "Kontrakt: " + request.get("contractText"));
+            invoicePayload.put("bankAccountCode", "1920:10001");
+            invoicePayload.put("cash", false);
+        
+
+            Map<String, String> customerRef = new HashMap<>();
+            customerRef.put("href", contactHref);
+            invoicePayload.put("customer", customerRef);
+
+            String contactId = contactHref.substring(contactHref.lastIndexOf('/') + 1);
+            invoicePayload.put("customerId", contactId);
+
+
+            List<Map<String, Object>> lines = new ArrayList<>();
+            Map<String, Object> lineItem = new HashMap<>();
+            lineItem.put("description", "Tjeneste/Produkt");
+            lineItem.put("unitPrice", 1000);
+            lineItem.put("vatType", "high");
+            lineItem.put("quantity", 1);
+            lineItem.put("incomeAccount", 3000);
+            lines.add(lineItem);
+
+            invoicePayload.put("lines", lines);
+
+
+            HttpEntity<Map<String, Object>> invoiceEntity = new HttpEntity<>(invoicePayload, headers);
+            ResponseEntity<Map> invoiceResponse = restTemplate.exchange(
+                    "https://api.fiken.no/api/v2/companies/" + companySlug + "/invoices",
+                    HttpMethod.POST,
+                    invoiceEntity,
+                    Map.class);
+
+            return ResponseEntity.ok(invoiceResponse.getBody());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Feil ved kontraktopprettelse: " + e.getMessage());
         }
     }
 
@@ -75,9 +148,9 @@ public class FikenController {
         StringBuilder encoded = new StringBuilder();
         for (Map.Entry<String, String> entry : params.entrySet()) {
             encoded.append(entry.getKey())
-                   .append('=')
-                   .append(entry.getValue())
-                   .append('&');
+                    .append('=')
+                    .append(entry.getValue())
+                    .append('&');
         }
         return encoded.substring(0, encoded.length() - 1);
     }
