@@ -51,7 +51,7 @@ public class VideoController {
 
     @GetMapping("/")
     public ResponseEntity<?> getVideos(@AuthenticationPrincipal UserEntity user) {
-        //TODO:Better admin authentication
+
         if(user == null){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
