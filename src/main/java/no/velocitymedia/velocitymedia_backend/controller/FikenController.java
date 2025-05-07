@@ -141,6 +141,9 @@ public class FikenController {
             invoicePayload.put("invoiceText", "Kontrakt: " + request.get("contractText"));
             invoicePayload.put("bankAccountCode", "1920:10001");
             invoicePayload.put("cash", false);
+            invoicePayload.put("type", "invoice");
+            invoicePayload.put("daysUntilDueDate", 14);
+
     
             String contactId = contactHref.substring(contactHref.lastIndexOf('/') + 1);
             invoicePayload.put("customerId", contactId);
@@ -159,7 +162,7 @@ public class FikenController {
 
             HttpEntity<Map<String, Object>> invoiceEntity = new HttpEntity<>(invoicePayload, headers);
             ResponseEntity<Map> invoiceResponse = restTemplate.exchange(
-                    "https://api.fiken.no/api/v2/companies/" + companySlug + "/invoices",
+                    "https://api.fiken.no/api/v2/companies/" + companySlug + "/invoices/drafts",
                     HttpMethod.POST,
                     invoiceEntity,
                     Map.class);  
@@ -169,7 +172,7 @@ public class FikenController {
             String publicInvoiceUrl = "https://fiken.no/foretak/" + companySlug + "/webfaktura/" + invoiceId;
 
             ResponseEntity<Map> invoiceBodyResponse = restTemplate.exchange(
-                    "https://api.fiken.no/api/v2/companies/" + companySlug + "/invoices/" + invoiceId,
+                    "https://api.fiken.no/api/v2/companies/" + companySlug + "/invoices/drafts/" + invoiceId,
                     HttpMethod.GET,
                     invoiceEntity,
                     Map.class);
