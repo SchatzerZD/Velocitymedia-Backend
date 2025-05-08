@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import no.velocitymedia.velocitymedia_backend.model.ImageEntity;
-import no.velocitymedia.velocitymedia_backend.model.UserEntity;
+import no.velocitymedia.velocitymedia_backend.model.ProjectEntity;
 import no.velocitymedia.velocitymedia_backend.repository.ImageRepository;
 
 @Service
@@ -17,8 +17,8 @@ public class ImageService {
     @Autowired
     private ImageRepository imageRepository;
 
-    public List<ImageEntity> getAllImagesByUser(UserEntity user){
-        return imageRepository.findByUserEntity(user);
+    public List<ImageEntity> getAllImagesByProject(ProjectEntity project){
+        return imageRepository.findByProject(project);
     }
 
     public void uploadImage(ImageEntity imageEntity){
