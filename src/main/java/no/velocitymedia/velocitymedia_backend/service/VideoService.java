@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
+import no.velocitymedia.velocitymedia_backend.model.ProjectEntity;
 import no.velocitymedia.velocitymedia_backend.model.UserEntity;
 import no.velocitymedia.velocitymedia_backend.model.VideoEntity;
+import no.velocitymedia.velocitymedia_backend.model.VideoFlag;
 import no.velocitymedia.velocitymedia_backend.repository.VideoRepository;
 
 @Service
@@ -21,20 +23,25 @@ public class VideoService {
         return videoRepository.findAll();
     }
 
-    public List<VideoEntity> getAllByUser(UserEntity userEntity){
-        return videoRepository.findByUser(userEntity);
+    public List<VideoEntity> getAllByProject(ProjectEntity projectEntity){
+        return videoRepository.findByProject(projectEntity);
+    }
+
+    public List<VideoEntity> getAllByProjectAndVideoFlag(ProjectEntity projectEntity, VideoFlag videoFlag){
+        return videoRepository.findByProjectAndVideoFlag(projectEntity, videoFlag);
     }
 
 
-    public void addVideo(UserEntity user,String videoName, String filePath){
+    public void addVideo(ProjectEntity project,String videoName, String filePath, VideoFlag videoFlag){
 
-        if(videoName.equals(null) || filePath.equals(null) || user.equals(null)){
+        if(videoName.equals(null) || filePath.equals(null) || project.equals(null)){
             throw new IllegalArgumentException();
         }
         VideoEntity newVideo = new VideoEntity();
-        newVideo.setUser(user);
+        newVideo.setProject(project);
         newVideo.setVideoName(videoName);
         newVideo.setFilePath(filePath);
+        newVideo.setVideoFlag(videoFlag);
 
         videoRepository.save(newVideo);
     }
@@ -44,7 +51,7 @@ public class VideoService {
     }
 
     public boolean verifyVideoUser(UserEntity user, VideoEntity videoEntity){
-        if(user.getId() == videoEntity.getUser().getId()){
+        if(user.getId() == videoEntity.getProject().getUser().getId()){
             return true;
         }else{
             return false;
