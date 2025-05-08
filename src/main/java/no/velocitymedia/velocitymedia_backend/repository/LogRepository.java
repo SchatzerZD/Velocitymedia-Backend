@@ -5,10 +5,10 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import no.velocitymedia.velocitymedia_backend.model.LogEntity;
-import no.velocitymedia.velocitymedia_backend.model.UserEntity;
+import no.velocitymedia.velocitymedia_backend.model.ProjectEntity;
 
 public interface LogRepository extends JpaRepository<LogEntity, Long>{
 
-    List<LogEntity> findByUserEntity(UserEntity userEntity);
+    List<LogEntity> findByProject(ProjectEntity project);
 
 }
