@@ -7,7 +7,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import no.velocitymedia.velocitymedia_backend.model.ProjectEntity;
 import no.velocitymedia.velocitymedia_backend.model.UserEntity;
+import no.velocitymedia.velocitymedia_backend.service.ProjectService;
 import no.velocitymedia.velocitymedia_backend.service.UserService;
 
 import java.net.URI;
@@ -30,6 +32,9 @@ public class FikenController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ProjectService projectService;
 
     @PostMapping("/token")
     public ResponseEntity<?> getAccessToken(@RequestBody Map<String, String> request) {
@@ -178,7 +183,7 @@ public class FikenController {
                     Map.class);
 
 
-            userService.updateUserFikenInfo(user, contactId, invoiceId);
+            userService.updateUserFikenInfo(user, contactId);
                     
             return ResponseEntity.ok(Map.of("invoiceUrl", publicInvoiceUrl.toString(), "content", invoiceBodyResponse.getBody()));
 
@@ -193,9 +198,15 @@ public class FikenController {
         
         try {
             String accountId = request.get("accountId");
-            String invoiceId = request.get("invoiceId");     
-            userService.updateUserFikenInfo(user, accountId, invoiceId);
-
+            String invoiceId = request.get("invoiceId");
+            String projectId = request.get("projectId");
+            
+            userService.updateUserFikenInfo(user, accountId);
+            ProjectEntity project = projectService.getProjectById(Long.parseLong(projectId));
+            if(user.getId() == project.getUser().getId()){
+                projectService.updateProjectFikenInfo(project, invoiceId);
+            }
+            
             return ResponseEntity.ok().build();
 
         } catch (Exception e) {

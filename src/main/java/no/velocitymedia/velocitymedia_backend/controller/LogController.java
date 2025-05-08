@@ -8,9 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import no.velocitymedia.velocitymedia_backend.model.LogEntity;
+import no.velocitymedia.velocitymedia_backend.model.ProjectEntity;
 import no.velocitymedia.velocitymedia_backend.model.UserEntity;
 import no.velocitymedia.velocitymedia_backend.service.LogService;
-import no.velocitymedia.velocitymedia_backend.service.UserService;
+import no.velocitymedia.velocitymedia_backend.service.ProjectService;
 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,18 +28,18 @@ public class LogController {
     private LogService logService;
 
     @Autowired
-    private UserService userService;
+    private ProjectService projectService;
 
 
     @PostMapping("/{id}")
-    public ResponseEntity<?> log(@AuthenticationPrincipal UserEntity user, @PathVariable("id") String userId,@RequestBody LogEntity logEntity) {
+    public ResponseEntity<?> log(@AuthenticationPrincipal UserEntity user, @PathVariable("id") String projectId,@RequestBody LogEntity logEntity) {
         if(user == null || !user.getUsername().equals("admin")){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
         
-        UserEntity targetUser = userService.getUserById(Long.parseLong(userId));
-        if(targetUser == null){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("User not found");
+        ProjectEntity project = projectService.getProjectById(Long.parseLong(projectId));
+        if(project == null){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Project not found");
         }
 
         try {
@@ -47,32 +48,32 @@ public class LogController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Log cannot be null");
         }
 
-        logEntity.setUserEntity(targetUser);
+        logEntity.setProject(project);
         logService.log(logEntity);
         return ResponseEntity.ok(logEntity.getLog());
     }
 
-    @GetMapping("/")
-    public ResponseEntity<?> getLogs(@AuthenticationPrincipal UserEntity user) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getLogs(@AuthenticationPrincipal UserEntity user, @PathVariable("id") String projectId) {
         if(user == null){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
 
-        return ResponseEntity.ok(logService.getAllLogsByUser(user));
+        return ResponseEntity.ok(logService.getAllLogsByProject(projectService.getProjectById(Long.parseLong(projectId))));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getLogsFromUser(@AuthenticationPrincipal UserEntity user, @PathVariable("id") String id) {
+    @GetMapping("/admin/{id}")
+    public ResponseEntity<?> getLogsFromUser(@AuthenticationPrincipal UserEntity user, @PathVariable("id") String projectId) {
         if(user == null || !user.getUsername().equals("admin")){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
 
-        UserEntity targetUser = userService.getUserById(Long.parseLong(id));
-        if(targetUser == null){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("User doesnt exist");
+        ProjectEntity project = projectService.getProjectById(Long.parseLong(projectId));
+        if(project == null){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Project doesnt exist");
         }
 
-        return ResponseEntity.ok(logService.getAllLogsByUser(targetUser));
+        return ResponseEntity.ok(logService.getAllLogsByProject(projectService.getProjectById(Long.parseLong(projectId))));
     }
     
     
