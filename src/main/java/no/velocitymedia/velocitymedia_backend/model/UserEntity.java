@@ -17,12 +17,11 @@ public class UserEntity {
     private String username;
     private String password;
     private String accountId;
-    private String invoiceId;
+
 
     public UserEntity(){
 
     }
-
 
     public UserEntity(String username, String password) {
         super();
@@ -64,23 +63,7 @@ public class UserEntity {
     public void setAccountId(String accountId) {
         this.accountId = accountId;
     }
-
-
-    public String getInvoiceId() {
-        return invoiceId;
-    }
-
-
-    public void setInvoiceId(String invoiceId) {
-        this.invoiceId = invoiceId;
-    }
-
-
     
     
-
-
-    
-
 
 }
