@@ -21,8 +21,8 @@ public class LogEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private UserEntity userEntity;
+    @JoinColumn(name = "project_id")
+    private ProjectEntity project;
 
     @Column(length = 4000)
     private String log;
@@ -33,22 +33,22 @@ public class LogEntity {
         this.logCreatedDate = new Date(System.currentTimeMillis());
     }
 
-    public LogEntity(UserEntity userEntity, String log){
+    public LogEntity(ProjectEntity project, String log){
         super();
-        this.userEntity = userEntity;
+        this.project = project;
         this.log = log;
     }
 
     public Long getId() {
         return id;
     }
-    
-    public UserEntity getUserEntity() {
-        return userEntity;
+
+    public ProjectEntity getProject() {
+        return project;
     }
 
-    public void setUserEntity(UserEntity userEntity) {
-        this.userEntity = userEntity;
+    public void setProject(ProjectEntity project) {
+        this.project = project;
     }
 
     public String getLog() {
