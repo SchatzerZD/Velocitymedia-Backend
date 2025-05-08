@@ -1,6 +1,8 @@
 package no.velocitymedia.velocitymedia_backend.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,37 +20,38 @@ public class VideoEntity{
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private UserEntity user;
+    @JoinColumn(name = "project_id")
+    private ProjectEntity project;
 
     private String videoName;
     private String filePath;
 
+    @Enumerated
+    @Column(name = "video_flag")
+    private VideoFlag videoFlag;
+
     public VideoEntity() {
     }
 
-    public VideoEntity(String videoName, String filePath) {
-        this.videoName = videoName;
-        this.filePath = filePath;
-    }
-
-    public VideoEntity(UserEntity user, String videoName, String filePath) {
+    public VideoEntity(ProjectEntity project, String videoName, String filePath, VideoFlag videoFlag) {
         super();
-        this.user = user;
+        this.project = project;
         this.videoName = videoName;
         this.filePath = filePath;
+        this.videoFlag = videoFlag;
     }
 
     public Long getId() {
         return id;
     }
 
-    public UserEntity getUser() {
-        return user;
+
+    public ProjectEntity getProject() {
+        return project;
     }
 
-    public void setUser(UserEntity user) {
-        this.user = user;
+    public void setProject(ProjectEntity project) {
+        this.project = project;
     }
 
     public String getVideoName() {
@@ -66,5 +69,15 @@ public class VideoEntity{
     public void setFilePath(String filePath) {
         this.filePath = filePath;
     }
+
+    public VideoFlag getVideoFlag() {
+        return videoFlag;
+    }
+
+    public void setVideoFlag(VideoFlag videoFlag) {
+        this.videoFlag = videoFlag;
+    }
+
+    
 
 }
