@@ -18,17 +18,17 @@ public class ImageEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private UserEntity userEntity;
+    @JoinColumn(name = "project_id")
+    private ProjectEntity project;
 
     private String imagePath;
 
     public ImageEntity() {
     }
 
-    public ImageEntity(UserEntity userEntity, String imagePath) {
+    public ImageEntity(ProjectEntity project, String imagePath) {
         super();
-        this.userEntity = userEntity;
+        this.project = project;
         this.imagePath = imagePath;
     }
 
@@ -36,12 +36,12 @@ public class ImageEntity {
         return id;
     }
 
-    public UserEntity getUserEntity() {
-        return userEntity;
+    public ProjectEntity getProject() {
+        return project;
     }
 
-    public void setUserEntity(UserEntity userEntity) {
-        this.userEntity = userEntity;
+    public void setProject(ProjectEntity project) {
+        this.project = project;
     }
 
     public String getImagePath() {
