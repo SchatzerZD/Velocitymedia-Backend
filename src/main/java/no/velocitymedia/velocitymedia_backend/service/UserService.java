@@ -42,13 +42,12 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void updateUserFikenInfo(UserEntity user, String accountId, String invoiceId){
+    public void updateUserFikenInfo(UserEntity user, String accountId){
         if(!userRepository.findByUsernameIgnoreCase(user.getUsername()).isPresent()){
             throw new IllegalArgumentException();
         }
 
         user.setAccountId(accountId);
-        user.setInvoiceId(invoiceId);
         userRepository.save(user);
     }
 
