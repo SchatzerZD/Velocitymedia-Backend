@@ -5,10 +5,10 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import no.velocitymedia.velocitymedia_backend.model.ImageEntity;
-import no.velocitymedia.velocitymedia_backend.model.UserEntity;
+import no.velocitymedia.velocitymedia_backend.model.ProjectEntity;
 
 public interface ImageRepository extends JpaRepository<ImageEntity, Long>{
 
-    List<ImageEntity> findByUserEntity(UserEntity userEntity);
+    List<ImageEntity> findByProject(ProjectEntity project);
 
 }
