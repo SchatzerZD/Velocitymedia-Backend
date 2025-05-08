@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import no.velocitymedia.velocitymedia_backend.model.LogEntity;
-import no.velocitymedia.velocitymedia_backend.model.UserEntity;
+import no.velocitymedia.velocitymedia_backend.model.ProjectEntity;
 import no.velocitymedia.velocitymedia_backend.repository.LogRepository;
 
 @Service
@@ -18,8 +18,8 @@ public class LogService {
     @Autowired
     private LogRepository logRepository;
 
-    public List<LogEntity> getAllLogsByUser(UserEntity user){
-        return logRepository.findByUserEntity(user);
+    public List<LogEntity> getAllLogsByProject(ProjectEntity projectEntity){
+        return logRepository.findByProject(projectEntity);
     }
 
     public void log(LogEntity logEntity){
