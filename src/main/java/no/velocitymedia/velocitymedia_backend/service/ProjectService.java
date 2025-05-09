@@ -1,5 +1,6 @@
 package no.velocitymedia.velocitymedia_backend.service;
 
+import java.sql.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 import no.velocitymedia.velocitymedia_backend.model.ProjectEntity;
 import no.velocitymedia.velocitymedia_backend.model.UserEntity;
+import no.velocitymedia.velocitymedia_backend.model.VideoFlag;
 import no.velocitymedia.velocitymedia_backend.repository.ProjectRepository;
 
 @Service
@@ -42,6 +44,7 @@ public class ProjectService {
         ProjectEntity projectEntity = new ProjectEntity();
         projectEntity.setUser(user);
         projectEntity.setName(name);
+        projectEntity.setProjectCreatedAt(System.currentTimeMillis());
 
         projectRepository.save(projectEntity);
     }
@@ -54,6 +57,12 @@ public class ProjectService {
     public void signContract(ProjectEntity projectEntity,Boolean signed){
         projectEntity.setContractSigned(signed);
         projectRepository.save(projectEntity);
+    }
+
+    public void setFlags(Long projectId, List<VideoFlag> newFlags){
+        ProjectEntity project = projectRepository.findById(projectId).orElseThrow();
+        project.setFlags(newFlags);
+        projectRepository.save(project);
     }
 
     

@@ -1,10 +1,23 @@
 package no.velocitymedia.velocitymedia_backend.controller;
 
+import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.HashSet;
+import java.util.List;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.apache.pdfbox.util.Matrix;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -18,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import no.velocitymedia.velocitymedia_backend.model.ProjectEntity;
 import no.velocitymedia.velocitymedia_backend.model.UserEntity;
+import no.velocitymedia.velocitymedia_backend.model.VideoFlag;
 import no.velocitymedia.velocitymedia_backend.repository.ProjectRepository;
 import no.velocitymedia.velocitymedia_backend.service.JWTService;
 import no.velocitymedia.velocitymedia_backend.service.ProjectService;
@@ -26,6 +40,7 @@ import no.velocitymedia.velocitymedia_backend.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RequestMapping(value = "/user")
@@ -103,6 +118,33 @@ public class UserController {
         return ResponseEntity.ok(projectService.getAllProjectsByUser(user));
     }
 
+    @GetMapping("/projects/{id}/flags")
+    public ResponseEntity<?> getProjectFlags(@AuthenticationPrincipal UserEntity user,
+            @PathVariable("id") String projectId) {
+        ProjectEntity projectEntity = projectService.getProjectById(Long.parseLong(projectId));
+        if (projectEntity.getUser().getId() != user.getId() && !user.getUsername().equals("admin")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Project does not belong to the user");
+        }
+
+        return ResponseEntity.ok(projectEntity.getFlags());
+    }
+
+    @PostMapping("/projects/admin/{id}/flags")
+    public ResponseEntity<?> updateFlags(@AuthenticationPrincipal UserEntity user, @PathVariable("id") String projectId,
+            @RequestBody List<VideoFlag> newFlags) {
+        if (!user.getUsername().equals("admin")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized access");
+        }
+
+        try {
+            projectService.setFlags(Long.parseLong(projectId), newFlags);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Something went wrong with updating flags: " + e);
+        }
+
+        return ResponseEntity.ok().body(projectService.getProjectById(Long.parseLong(projectId)));
+    }
+
     @PostMapping("/projects/admin/contract/{id}")
     public ResponseEntity<?> uploadContractToProject(
             @AuthenticationPrincipal UserEntity user,
@@ -130,13 +172,14 @@ public class UserController {
             String originalFileName = file.getOriginalFilename();
             String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
             String baseName = originalFileName.substring(0, originalFileName.lastIndexOf("."));
-            
+
             String uniqueFileName = baseName + "_" + System.currentTimeMillis() + extension;
             Path filePath = uploadPath.resolve(uniqueFileName);
-            
+
             Files.copy(file.getInputStream(), filePath);
 
-            projectService.updateProjectContractDir(projectService.getProjectById(Long.parseLong(projectId)) ,filePath.toString());
+            projectService.updateProjectContractDir(projectService.getProjectById(Long.parseLong(projectId)),
+                    filePath.toString());
 
             return ResponseEntity.ok("Contract uploaded successfully: " + filePath.toString());
         } catch (Exception e) {
@@ -176,6 +219,73 @@ public class UserController {
         projectService.signContract(projectEntity, signed);
         return signed ? ResponseEntity.ok().body("Contract Signed")
                 : ResponseEntity.status(HttpStatus.CONFLICT).body("Contract refused");
+    }
+
+    @PostMapping("/projects/{id}/contract/signature")
+    public ResponseEntity<?> appendSignatureToPdf(
+            @AuthenticationPrincipal UserEntity user,
+            @PathVariable("id") String projectId,
+            @RequestParam("signature") MultipartFile signatureFile) {
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
+        ProjectEntity project = projectService.getProjectById(Long.parseLong(projectId));
+        if (project == null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Project not found");
+        }
+
+        String contractPdfPath = project.getContractPath();
+        if (contractPdfPath == null || contractPdfPath.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Contract not found");
+        }
+
+        try {
+            Path tempSignaturePath = Paths.get(UPLOAD_CONTRACT_DIR, "signature_" + System.currentTimeMillis() + ".png");
+            Files.copy(signatureFile.getInputStream(), tempSignaturePath, StandardCopyOption.REPLACE_EXISTING);
+
+            File pdfFile = new File(contractPdfPath);
+            PDDocument document = PDDocument.load(pdfFile);
+
+            PDPage newPage = new PDPage(PDRectangle.A4);
+            document.addPage(newPage);
+
+            PDImageXObject pdImage = PDImageXObject.createFromFile(tempSignaturePath.toString(), document);
+            PDPageContentStream contentStream = new PDPageContentStream(document, newPage,
+                    PDPageContentStream.AppendMode.APPEND, true);
+
+            contentStream.beginText();
+            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 18);
+            contentStream.newLineAtOffset(80, 640);
+            contentStream.showText("X");
+            contentStream.endText();
+
+            contentStream.moveTo(100, 640);
+            contentStream.lineTo(300, 640);
+            contentStream.setStrokingColor(Color.BLACK);
+            contentStream.setLineWidth(1);
+            contentStream.stroke();
+
+            contentStream.drawImage(pdImage, 100, 645, 200, 40);
+
+            contentStream.beginText();
+            contentStream.setFont(PDType1Font.HELVETICA_OBLIQUE, 12);
+            contentStream.newLineAtOffset(100, 625);
+            contentStream.showText("Signatur");
+            contentStream.endText();
+
+            contentStream.close();
+            document.save(pdfFile);
+            document.close();
+
+            Files.delete(tempSignaturePath);
+
+            return ResponseEntity.ok("Signature added to contract successfully.");
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while adding the signature: " + e.getMessage());
+        }
     }
 
 }

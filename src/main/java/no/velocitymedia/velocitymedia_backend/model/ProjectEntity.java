@@ -1,6 +1,16 @@
 package no.velocitymedia.velocitymedia_backend.model;
 
+import java.sql.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,6 +38,14 @@ public class ProjectEntity {
 
     private Boolean contractSigned;
     private String contractPath;
+
+    @ElementCollection(targetClass = VideoFlag.class)
+    @Enumerated(EnumType.STRING)
+    @CollectionTable(name = "project_flags", joinColumns = @JoinColumn(name = "project_id"))
+    @Column(name = "flag")
+    private Set<VideoFlag> flags = new HashSet<>();
+
+    private long projectCreatedAt;
 
     public ProjectEntity() {
         contractSigned = false;
@@ -84,5 +102,33 @@ public class ProjectEntity {
         this.contractPath = contractPath;
     }
 
+    public void addFlag(VideoFlag flag) {
+        this.flags.add(flag);
+    }
+    
+    public void removeFlag(VideoFlag flag) {
+        this.flags.remove(flag);
+    }
+
+    public void setFlags(List<VideoFlag> flagList) {
+        this.flags.clear();
+        flagList.forEach(flag -> this.addFlag(flag));
+    }
+
+    public Set<VideoFlag> getFlags() {
+        return this.flags;
+    }
+
+    public long getProjectCreatedAt() {
+        return projectCreatedAt;
+    }
+
+    public void setProjectCreatedAt(long projectCreatedAt) {
+        this.projectCreatedAt = projectCreatedAt;
+    }
+
+
+
+    
 
 }
