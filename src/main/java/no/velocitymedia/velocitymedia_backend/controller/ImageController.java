@@ -83,11 +83,12 @@ public class ImageController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getImages(@AuthenticationPrincipal UserEntity user, @PathVariable("id") String projectId) {
-        if(user == null){
+        ProjectEntity projectEntity = projectService.getProjectById(Long.parseLong(projectId));
+        if(user == null || projectEntity.getUser().getId() != user.getId()){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
 
-        return ResponseEntity.ok(imageService.getAllImagesByProject(projectService.getProjectById(Long.parseLong(projectId))));
+        return ResponseEntity.ok(imageService.getAllImagesByProject(projectEntity));
     }
 
     @GetMapping("/admin/{id}")

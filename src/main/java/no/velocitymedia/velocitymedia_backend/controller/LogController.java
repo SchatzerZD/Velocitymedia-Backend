@@ -55,11 +55,12 @@ public class LogController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getLogs(@AuthenticationPrincipal UserEntity user, @PathVariable("id") String projectId) {
-        if(user == null){
+        ProjectEntity projectEntity = projectService.getProjectById(Long.parseLong(projectId));
+        if(user == null || projectEntity.getUser().getId() != user.getId()){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
 
-        return ResponseEntity.ok(logService.getAllLogsByProject(projectService.getProjectById(Long.parseLong(projectId))));
+        return ResponseEntity.ok(logService.getAllLogsByProject(projectEntity));
     }
 
     @GetMapping("/admin/{id}")
