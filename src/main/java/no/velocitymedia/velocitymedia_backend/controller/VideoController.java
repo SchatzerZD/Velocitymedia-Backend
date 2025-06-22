@@ -88,21 +88,16 @@ public class VideoController {
             String uniqueFileName = baseName + "_" + System.currentTimeMillis() + extension;
             Path filePath = uploadPath.resolve(uniqueFileName);
             
-            Files.copy(file.getInputStream(), filePath);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
             
-
-
-            VideoEntity videoEntity = new VideoEntity();
-            videoEntity.setVideoName(uniqueFileName);
-            videoEntity.setFilePath(filePath.toString());
-            videoEntity.setVideoFlag(videoFlag);
+            String publicVideoUrl = "/media/videos/" + uniqueFileName;
 
             String thumbnailFileName = uniqueFileName.replaceAll("\\.mp4$", "") + ".jpg";
             Path thumbnailPath = uploadPath.resolve(thumbnailFileName);
             
             ThumbnailGenerator.generateThumbnail(filePath.toString(), thumbnailPath.toString());
 
-            videoService.addVideo(project, videoEntity.getVideoName(), videoEntity.getFilePath(), videoEntity.getVideoFlag());
+            videoService.addVideo(project, uniqueFileName, publicVideoUrl, videoFlag);
             return ResponseEntity.ok().body("Video uploaded");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e);

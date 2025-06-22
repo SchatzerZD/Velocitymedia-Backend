@@ -191,12 +191,14 @@ public class UserController {
             String uniqueFileName = baseName + "_" + System.currentTimeMillis() + extension;
             Path filePath = uploadPath.resolve(uniqueFileName);
 
-            Files.copy(file.getInputStream(), filePath);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            String publicContractUrl = "/media/contracts/" + uniqueFileName;
 
             projectService.updateProjectContractDir(projectService.getProjectById(Long.parseLong(projectId)),
-                    filePath.toString());
+                    publicContractUrl);
 
-            return ResponseEntity.ok("Contract uploaded successfully: " + filePath.toString());
+            return ResponseEntity.ok("Contract uploaded successfully: " + publicContractUrl);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Something went wrong: " + e.getMessage());
