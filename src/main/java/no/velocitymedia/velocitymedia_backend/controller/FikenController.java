@@ -10,9 +10,6 @@ import org.springframework.web.client.RestTemplate;
 import no.velocitymedia.velocitymedia_backend.model.ProjectEntity;
 import no.velocitymedia.velocitymedia_backend.model.UserEntity;
 import no.velocitymedia.velocitymedia_backend.service.ProjectService;
-import no.velocitymedia.velocitymedia_backend.service.UserService;
-
-import java.net.URI;
 import java.util.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

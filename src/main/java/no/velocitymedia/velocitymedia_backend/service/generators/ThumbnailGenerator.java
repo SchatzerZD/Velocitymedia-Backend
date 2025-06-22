@@ -7,7 +7,7 @@ public class ThumbnailGenerator {
 
     public static void generateThumbnail(String videoPath, String thumbnailPath) throws IOException, InterruptedException {
         ProcessBuilder processBuilder = new ProcessBuilder(
-            "C:\\Users\\danir\\AppData\\Local\\Microsoft\\WinGet\\Packages\\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\\ffmpeg-7.1.1-full_build\\bin\\ffmpeg.exe",
+            "ffmpeg",
             "-i", videoPath,
             "-ss", "00:00:01.000",
             "-vframes", "1",

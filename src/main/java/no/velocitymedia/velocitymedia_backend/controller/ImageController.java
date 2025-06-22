@@ -67,11 +67,12 @@ public class ImageController {
             String uniqueFileName = baseName + "_" + System.currentTimeMillis() + extension;
             Path filePath = uploadPath.resolve(uniqueFileName);
             
-            Files.copy(file.getInputStream(), filePath);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
+            String publicImageUrl = "/media/images/" + uniqueFileName;
 
             ImageEntity imageEntity = new ImageEntity();
-            imageEntity.setImagePath(filePath.toString());
+            imageEntity.setImagePath(publicImageUrl);
             imageEntity.setProject(project);
 
             imageService.uploadImage(imageEntity);
