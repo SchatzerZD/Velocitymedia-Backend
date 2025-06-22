@@ -13,7 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "log", schema = "dbo")
+@Table(name = "log")
 public class LogEntity {
 
     @Id
