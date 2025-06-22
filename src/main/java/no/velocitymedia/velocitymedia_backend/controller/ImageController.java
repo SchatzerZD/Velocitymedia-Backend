@@ -23,7 +23,6 @@ import no.velocitymedia.velocitymedia_backend.model.ProjectEntity;
 import no.velocitymedia.velocitymedia_backend.model.UserEntity;
 import no.velocitymedia.velocitymedia_backend.service.ImageService;
 import no.velocitymedia.velocitymedia_backend.service.ProjectService;
-import no.velocitymedia.velocitymedia_backend.service.UserService;
 
 @RequestMapping(value = "/image")
 @RestController
@@ -32,9 +31,6 @@ public class ImageController {
 
     @Autowired
     private ImageService imageService;
-
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private ProjectService projectService;

@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.HashSet;
 import java.util.List;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -15,13 +14,10 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-import org.apache.pdfbox.util.Matrix;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,7 +36,6 @@ import no.velocitymedia.velocitymedia_backend.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RequestMapping(value = "/user")
@@ -99,7 +94,7 @@ public class UserController {
 
     }
 
-        @GetMapping("/projects/admin/project/{id}")
+    @GetMapping("/projects/admin/project/{id}")
     public ResponseEntity<?> getProjectByIdAdmin(@AuthenticationPrincipal UserEntity user,
             @PathVariable("id") String projectId) {
         ProjectEntity projectEntity = projectService.getProjectById(Long.parseLong(projectId));
@@ -262,7 +257,12 @@ public class UserController {
             Path tempSignaturePath = Paths.get(UPLOAD_CONTRACT_DIR, "signature_" + System.currentTimeMillis() + ".png");
             Files.copy(signatureFile.getInputStream(), tempSignaturePath, StandardCopyOption.REPLACE_EXISTING);
 
-            File pdfFile = new File(contractPdfPath);
+            String absolutePdfPath = contractPdfPath.startsWith("/media/contracts")
+                    ? contractPdfPath.replaceFirst("/media/contracts", UPLOAD_CONTRACT_DIR)
+                    : contractPdfPath;
+
+            File pdfFile = new File(absolutePdfPath);
+
             PDDocument document = PDDocument.load(pdfFile);
 
             PDPage newPage = new PDPage(PDRectangle.A4);

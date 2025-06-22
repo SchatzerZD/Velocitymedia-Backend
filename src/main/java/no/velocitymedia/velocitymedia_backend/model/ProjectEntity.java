@@ -1,6 +1,5 @@
 package no.velocitymedia.velocitymedia_backend.model;
 
-import java.sql.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
