@@ -34,7 +34,7 @@ public class ProjectEntity {
 
     private String name;
     
-    private String invoiceId;
+    private String invoiceURL;
 
     private Boolean contractSigned;
     private String contractPath;
@@ -51,11 +51,10 @@ public class ProjectEntity {
         contractSigned = false;
     }
 
-    public ProjectEntity(UserEntity user, String name, String invoiceId) {
+    public ProjectEntity(UserEntity user, String name) {
         super();
         this.user = user;
         this.name = name;
-        this.invoiceId = invoiceId;
     }
 
     public Long getId() {
@@ -76,14 +75,6 @@ public class ProjectEntity {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getInvoiceId() {
-        return invoiceId;
-    }
-
-    public void setInvoiceId(String invoiceId) {
-        this.invoiceId = invoiceId;
     }
 
     public Boolean getContractSigned() {
@@ -128,6 +119,16 @@ public class ProjectEntity {
     }
 
 
+    public String getInvoiceURL() {
+        return invoiceURL;
+    }
+
+    public void setInvoiceURL(String invoiceURL) {
+        this.invoiceURL = invoiceURL;
+    }
+
+
+    
 
     
 

@@ -69,7 +69,6 @@ public class VideoController {
     public ResponseEntity<?> uploadVideo(@AuthenticationPrincipal UserEntity user, @PathVariable("id") String projectId, 
     @RequestParam("file") MultipartFile file, @RequestParam("flag") VideoFlag videoFlag) {
 
-        //TODO:Better admin authentication
         if(user == null || !user.getUsername().equals("admin")){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }

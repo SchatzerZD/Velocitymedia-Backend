@@ -49,8 +49,8 @@ public class ProjectService {
         projectRepository.save(projectEntity);
     }
 
-    public void updateProjectFikenInfo(ProjectEntity projectEntity, String invoiceId){
-        projectEntity.setInvoiceId(invoiceId);
+    public void updateProjectFikenInfo(ProjectEntity projectEntity, String invoiceURL){
+        projectEntity.setInvoiceURL(invoiceURL);
         projectRepository.save(projectEntity);
     }
 

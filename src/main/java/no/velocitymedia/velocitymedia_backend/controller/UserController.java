@@ -89,8 +89,23 @@ public class UserController {
     public ResponseEntity<?> getProjectById(@AuthenticationPrincipal UserEntity user,
             @PathVariable("id") String projectId) {
         ProjectEntity projectEntity = projectService.getProjectById(Long.parseLong(projectId));
+        System.out.println(projectEntity.getUser().getId() != user.getId());
+        System.out.println();
         if (projectEntity.getUser().getId() != user.getId()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Project does not belong to the user");
+        }
+
+        return ResponseEntity.ok(projectEntity);
+
+    }
+
+        @GetMapping("/projects/admin/project/{id}")
+    public ResponseEntity<?> getProjectByIdAdmin(@AuthenticationPrincipal UserEntity user,
+            @PathVariable("id") String projectId) {
+        ProjectEntity projectEntity = projectService.getProjectById(Long.parseLong(projectId));
+
+        if (!user.getUsername().equals("admin")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized access");
         }
 
         return ResponseEntity.ok(projectEntity);
