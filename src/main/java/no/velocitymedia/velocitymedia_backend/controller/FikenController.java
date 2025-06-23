@@ -11,8 +11,6 @@ import no.velocitymedia.velocitymedia_backend.model.ProjectEntity;
 import no.velocitymedia.velocitymedia_backend.model.UserEntity;
 import no.velocitymedia.velocitymedia_backend.service.ProjectService;
 import java.util.*;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/fiken")
@@ -27,7 +25,8 @@ public class FikenController {
     @Autowired
     private ProjectService projectService;
 
-    private final String COMPANY_SLUG = "fiken-demo-gammel-burger-as";
+    @Value("${company-slug}")
+    private String COMPANY_SLUG;
 
     @PostMapping("/create-contract/{id}")
     public ResponseEntity<?> createContract(@AuthenticationPrincipal UserEntity user,
