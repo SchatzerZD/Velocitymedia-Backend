@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.servlet.http.HttpServletRequest;
 import no.velocitymedia.velocitymedia_backend.model.ProjectEntity;
 import no.velocitymedia.velocitymedia_backend.model.UserEntity;
 import no.velocitymedia.velocitymedia_backend.model.VideoFlag;
@@ -222,14 +223,22 @@ public class UserController {
     }
 
     @PostMapping("/contract/{id}")
-    public ResponseEntity<?> signContract(@AuthenticationPrincipal UserEntity user,
-            @PathVariable("id") String projectId, @RequestParam("identifier") String identifier) {
+    public ResponseEntity<?> signContract(
+            @AuthenticationPrincipal UserEntity user,
+            @PathVariable("id") String projectId,
+            HttpServletRequest request) {
+
         ProjectEntity projectEntity = projectService.getProjectById(Long.parseLong(projectId));
-        if (projectEntity.getUser().getId() != user.getId()) {
+
+        if (!projectEntity.getUser().getId().equals(user.getId())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Project does not belong to the user");
         }
-        projectService.signContract(projectEntity, true, identifier);
-        return ResponseEntity.ok().body("Contract Signed");
+
+        String ipAddress = extractClientIp(request);
+
+        projectService.signContract(projectEntity, true, ipAddress);
+
+        return ResponseEntity.ok("Contract Signed");
     }
 
     @PostMapping("/projects/{id}/contract/signature")
@@ -302,6 +311,14 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An error occurred while adding the signature: " + e.getMessage());
         }
+    }
+
+    private String extractClientIp(HttpServletRequest request) {
+        String forwarded = request.getHeader("X-Forwarded-For");
+        if (forwarded != null && !forwarded.isEmpty()) {
+            return forwarded.split(",")[0];
+        }
+        return request.getRemoteAddr();
     }
 
 }
