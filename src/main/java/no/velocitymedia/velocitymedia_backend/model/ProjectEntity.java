@@ -1,5 +1,6 @@
 package no.velocitymedia.velocitymedia_backend.model;
 
+import java.sql.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +38,8 @@ public class ProjectEntity {
 
     private Boolean contractSigned;
     private String contractPath;
+    private Date contractSignedAtDate;
+    private String contractIdentifier;
 
     @ElementCollection(targetClass = VideoFlag.class)
     @Enumerated(EnumType.STRING)
@@ -125,6 +128,24 @@ public class ProjectEntity {
     public void setInvoiceURL(String invoiceURL) {
         this.invoiceURL = invoiceURL;
     }
+
+    public Date getContractSignedAtDate() {
+        return contractSignedAtDate;
+    }
+
+    public void setContractSignedAtDate(Date contractSignedAtDate) {
+        this.contractSignedAtDate = contractSignedAtDate;
+    }
+
+    public String getContractIdentifier() {
+        return contractIdentifier;
+    }
+
+    public void setContractIdentifier(String contractIdentifier) {
+        this.contractIdentifier = contractIdentifier;
+    }
+
+    
 
 
     

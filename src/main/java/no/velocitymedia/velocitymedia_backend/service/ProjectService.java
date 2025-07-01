@@ -1,5 +1,6 @@
 package no.velocitymedia.velocitymedia_backend.service;
 
+import java.sql.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,8 +54,10 @@ public class ProjectService {
         projectRepository.save(projectEntity);
     }
 
-    public void signContract(ProjectEntity projectEntity,Boolean signed){
+    public void signContract(ProjectEntity projectEntity,Boolean signed, String identifier){
         projectEntity.setContractSigned(signed);
+        projectEntity.setContractIdentifier(identifier);
+        projectEntity.setContractSignedAtDate(new Date(System.currentTimeMillis()));
         projectRepository.save(projectEntity);
     }
 

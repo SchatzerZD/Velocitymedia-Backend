@@ -223,14 +223,13 @@ public class UserController {
 
     @PostMapping("/contract/{id}")
     public ResponseEntity<?> signContract(@AuthenticationPrincipal UserEntity user,
-            @PathVariable("id") String projectId, @RequestParam("signed") Boolean signed) {
+            @PathVariable("id") String projectId, @RequestParam("identifier") String identifier) {
         ProjectEntity projectEntity = projectService.getProjectById(Long.parseLong(projectId));
         if (projectEntity.getUser().getId() != user.getId()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Project does not belong to the user");
         }
-        projectService.signContract(projectEntity, signed);
-        return signed ? ResponseEntity.ok().body("Contract Signed")
-                : ResponseEntity.status(HttpStatus.CONFLICT).body("Contract refused");
+        projectService.signContract(projectEntity, true, identifier);
+        return ResponseEntity.ok().body("Contract Signed");
     }
 
     @PostMapping("/projects/{id}/contract/signature")
