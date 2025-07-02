@@ -34,6 +34,7 @@ import no.velocitymedia.velocitymedia_backend.service.JWTService;
 import no.velocitymedia.velocitymedia_backend.service.ProjectService;
 import no.velocitymedia.velocitymedia_backend.service.UserService;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,8 +43,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping(value = "/user")
 @RestController
 public class UserController {
-
-    private final ProjectRepository projectRepository;
 
     @Autowired
     private UserService userService;
@@ -58,7 +57,6 @@ public class UserController {
     private String UPLOAD_CONTRACT_DIR;
 
     UserController(ProjectRepository projectRepository) {
-        this.projectRepository = projectRepository;
     }
 
     @GetMapping("/")
@@ -74,6 +72,16 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<?> getUserByAuthentication(@AuthenticationPrincipal UserEntity user) {
         return ResponseEntity.ok(user);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteUser(@AuthenticationPrincipal UserEntity user, @PathVariable("id") String userId){
+                if (!user.getUsername().equals("admin")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized access");
+        }
+
+        UserEntity userToBeDeleted = userService.getUserById(Long.parseLong(userId));
+        return ResponseEntity.ok().body(userToBeDeleted.getUsername()  + " deleted");
     }
 
     @GetMapping("/projects")

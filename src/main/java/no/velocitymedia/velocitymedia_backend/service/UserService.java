@@ -42,6 +42,10 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public void deleteUser(UserEntity user){
+        userRepository.delete(user);
+    }
+
     public void updateUserFikenInfo(UserEntity user, String accountId){
         if(!userRepository.findByUsernameIgnoreCase(user.getUsername()).isPresent()){
             throw new IllegalArgumentException();
