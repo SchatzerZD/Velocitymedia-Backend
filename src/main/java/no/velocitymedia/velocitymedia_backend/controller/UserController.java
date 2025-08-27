@@ -219,7 +219,7 @@ public class UserController {
 
     @PostMapping("/")
     public ResponseEntity<?> registerUser(@RequestBody UserEntity user) {
-        if (user == null || !user.getUsername().equals("admin")) {
+        if (user == null || user.getUsername().equals("admin")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
 
