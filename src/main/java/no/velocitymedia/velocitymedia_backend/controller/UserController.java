@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletRequest;
+import no.velocitymedia.velocitymedia_backend.dto.UserDTO;
 import no.velocitymedia.velocitymedia_backend.model.ProjectEntity;
 import no.velocitymedia.velocitymedia_backend.model.UserEntity;
 import no.velocitymedia.velocitymedia_backend.model.VideoFlag;
@@ -66,7 +68,12 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized access");
         }
 
-        return ResponseEntity.ok(userService.getAllUsers());
+        List<UserEntity> userList = userService.getAllUsers();
+        List<UserDTO> userDTOList = new ArrayList<>();
+
+        userList.forEach(u -> userDTOList.add(new UserDTO(u.getId(), u.getUsername())));
+
+        return ResponseEntity.ok(userList);
     }
 
     @GetMapping("/me")
@@ -81,6 +88,7 @@ public class UserController {
         }
 
         UserEntity userToBeDeleted = userService.getUserById(Long.parseLong(userId));
+        userService.deleteUser(userToBeDeleted);
         return ResponseEntity.ok().body(userToBeDeleted.getUsername()  + " deleted");
     }
 
@@ -211,6 +219,10 @@ public class UserController {
 
     @PostMapping("/")
     public ResponseEntity<?> registerUser(@RequestBody UserEntity user) {
+        if (user == null || !user.getUsername().equals("admin")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
         try {
             userService.addUser(user);
             return ResponseEntity.ok(jwtService.generateJWT(user));
