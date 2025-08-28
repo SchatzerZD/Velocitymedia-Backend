@@ -1,7 +1,7 @@
 package no.velocitymedia.velocitymedia_backend.model;
 
 public enum VideoFlag {
-    CLIPPING,
+    KLIPPING,
     GRADING,
     VFX,
     SFX,
