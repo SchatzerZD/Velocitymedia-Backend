@@ -82,14 +82,14 @@ public class UserController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteUser(@AuthenticationPrincipal UserEntity user, @PathVariable("id") String userId){
-                if (!user.getUsername().equals("admin")) {
+    public ResponseEntity<?> deleteUser(@AuthenticationPrincipal UserEntity user, @PathVariable("id") String userId) {
+        if (!user.getUsername().equals("admin")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized access");
         }
 
         UserEntity userToBeDeleted = userService.getUserById(Long.parseLong(userId));
         userService.deleteUser(userToBeDeleted);
-        return ResponseEntity.ok().body(userToBeDeleted.getUsername()  + " deleted");
+        return ResponseEntity.ok().body(userToBeDeleted.getUsername() + " deleted");
     }
 
     @GetMapping("/projects")
@@ -138,6 +138,22 @@ public class UserController {
     public ResponseEntity<?> addProject(@AuthenticationPrincipal UserEntity user, @RequestBody ProjectEntity project) {
         try {
             projectService.addProject(user, project.getName());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Something went wrong: " + e);
+        }
+
+        return ResponseEntity.ok(projectService.getAllProjectsByUser(user));
+    }
+
+    @PostMapping("/projects/admin/{id}")
+    public ResponseEntity<?> addProject(@AuthenticationPrincipal UserEntity user, @PathVariable("id") String userId,
+            @RequestBody ProjectEntity project) {
+
+        if (user == null || user.getUsername().equals("admin")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+        try {
+            projectService.addProject(userService.getUserById(Long.parseLong(userId)), project.getName());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Something went wrong: " + e);
         }
